@@ -14,6 +14,7 @@ from more_itertools import unzip
 
 from calculate_primary.common import MOPrimaryEngagementUpdater
 
+
 class AttrDict(dict):
     """Enable dot.notation access for a dict object.
 

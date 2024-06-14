@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: Magenta ApS <https://magenta.dk>
+# SPDX-License-Identifier: MPL-2.0
+
+query GetEngagementPerson($uuids: UUID!) {
+  engagements(filter: {uuids: [$uuids]}) {
+    objects {
+      objects(end: null, start: null) {
+        employee {
+          uuid
+        }
+      }
+    }
+  }
+}

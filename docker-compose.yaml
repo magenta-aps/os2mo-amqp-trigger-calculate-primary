@@ -4,8 +4,9 @@
 services:
   calculate_primary:
     build: .
-    container_name: amqp_trigger_recalculate_primary
+    command: "uvicorn --factory calculate_primary.app:create_app --host 0.0.0.0 --reload"
     environment:
+      INTEGRATION: DEFAULT
       # OS2mo
       FASTRAMQPI__MO_URL: "http://mo:5000"
       FASTRAMQPI__CLIENT_ID: "dipex"
@@ -14,13 +15,21 @@ services:
       FASTRAMQPI__AUTH_REALM: "mo"
       FASTRAMQPI__AMQP__URL: "amqp://guest:guest@msg-broker:5672/"
 
-
-      INTEGRATION: DEFAULT
-
+      # Yes this is exactly the same as above...
+      # This is the format MoraHelpers uses.
+      # Can be removed once calculate primary is rewritten to
+      # use only graphql
+      CLIENT_ID: "dipex"
+      CLIENT_SECRET: "603f1c82-d012-4d04-9382-dbe659c533fb"
+      AUTH_SERVER: "http://keycloak:8080/auth"
+      AUTH_REALM: "mo"
+      AMQP__URL: "amqp://guest:guest@msg-broker:5672/"
     networks:
       - os2mo_default
     ports:
       - "8000:8000"
+    volumes:
+      - ./:/app/:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/metrics"]
       interval: 5s
