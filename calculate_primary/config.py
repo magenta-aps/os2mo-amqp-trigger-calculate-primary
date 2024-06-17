@@ -6,6 +6,7 @@ from uuid import UUID
 from fastramqpi.config import Settings as FastRAMQPISettings
 from pydantic import BaseSettings
 
+
 class _Settings(BaseSettings):
     class Config:
         frozen = True

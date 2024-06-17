@@ -4,14 +4,15 @@
 """Event-driven recalculate primary program."""
 from typing import List
 from uuid import UUID
-import structlog
 
+import structlog
 from prometheus_client import Counter
 from prometheus_client import Gauge
 from prometheus_client import Info
 
 from calculate_primary.calculate_primary import get_engagement_updater
 from calculate_primary.common import MOPrimaryEngagementUpdater
+
 logger = structlog.get_logger(__name__)
 
 edit_counter = Counter("recalculate_edit", "Number of edits made")
