@@ -88,7 +88,7 @@ class Test_check_user(TestCase):
     """Test the check_user functions."""
 
     def setUp(self):
-        self.updater = MOPrimaryEngagementUpdaterTest({"mora.base": "mora_base_url"})
+        self.updater = MOPrimaryEngagementUpdaterTest(settings=MagicMock())
 
     def test_create(self):
         """Test that setUp runs without using it for anything."""
@@ -318,7 +318,7 @@ class Test_recalculate_user(TestCase):
     """Test the recalculate_user functions."""
 
     def setUp(self):
-        self.updater = MOPrimaryEngagementUpdaterTest({"mora.base": "mora_base_url"})
+        self.updater = MOPrimaryEngagementUpdaterTest(settings=MagicMock())
         self.updater.morahelper_mock._mo_post.return_value = AttrDict(
             {
                 "status_code": 200,
