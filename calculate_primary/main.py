@@ -4,15 +4,15 @@
 """Event-driven recalculate primary program."""
 from typing import List
 from uuid import UUID
+import structlog
 
 from prometheus_client import Counter
 from prometheus_client import Gauge
 from prometheus_client import Info
 
 from calculate_primary.calculate_primary import get_engagement_updater
-from calculate_primary.calculate_primary import setup_logging
 from calculate_primary.common import MOPrimaryEngagementUpdater
-
+logger = structlog.get_logger(__name__)
 
 edit_counter = Counter("recalculate_edit", "Number of edits made")
 no_edit_counter = Counter("recalculate_no_edit", "Number of noops made")
@@ -34,7 +34,7 @@ def calculate_user(updater: MOPrimaryEngagementUpdater, uuid: UUID) -> None:
     Returns:
         None
     """
-    print(f"Recalculating user: {uuid}")
+    logger.info(f"Recalculating user: {uuid}")
     last_processing.set_to_current_time()
     # TODO: An async version would be desireable
     updates = updater.recalculate_user(uuid)
@@ -46,10 +46,7 @@ def calculate_user(updater: MOPrimaryEngagementUpdater, uuid: UUID) -> None:
 
 
 def _setup_updater(
-    integration: str,
-    dry_run: bool,
-    mo_url: str,
-    eng_types_primary_order: List[str],
+    settings,
 ) -> MOPrimaryEngagementUpdater:
     """Exchange integration to updater.
 
@@ -61,18 +58,13 @@ def _setup_updater(
     Returns:
         The constructed updater.
     """
-    print("Configuring calculate-primary logging")
-    setup_logging()
+    logger.info("Configuring calculate-primary logging")
 
-    print(f"Acquiring updater: {integration}")
-    updater_class = get_engagement_updater(integration)
-    print(f"Got class: {updater_class}")
+    logger.info(f"Acquiring updater: {settings.integration}")
+    updater_class = get_engagement_updater(settings.integration)
+    logger.info(f"Got class: {updater_class}")
     updater: MOPrimaryEngagementUpdater = updater_class(
-        settings={
-            "mora.base": mo_url,
-            "integrations.opus.eng_types_primary_order": eng_types_primary_order,
-        },
-        dry_run=dry_run,
+        settings=settings,
     )
-    print(f"Got object: {updater}")
+    logger.info(f"Got object: {updater}")
     return updater
