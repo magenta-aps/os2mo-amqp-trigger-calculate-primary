@@ -13,27 +13,11 @@ class OPUSPrimaryEngagementUpdater(MOPrimaryEngagementUpdater):
 
         # Currently primary is set first by engagement type (order given in
         # settings) and secondly by job_id.
-        # TODO: Check that configured eng_types exist
-        self.eng_types_order = self.settings[
-            "integrations.opus.eng_types_primary_order"
-        ]
-
-        def engagements_included_in_primary_calculation(user_uuid, no_past, engagement):
-            if engagement["org_unit"]["uuid"] in self.settings.get(
-                "integrations.ad.import_ou.mo_unit_uuid", ""
-            ):
-                # disregard engagements from externals
-                logger.warning(
-                    "disregarding external engagement: {}".format(engagement)
-                )
-                return False
-            return True
 
         def remove_missing_user_key(user_uuid, no_past, engagement):
             return "user_key" in engagement
 
         self.calculate_filters = [
-            engagements_included_in_primary_calculation,
             remove_missing_user_key,
         ]
 
@@ -70,13 +54,18 @@ class OPUSPrimaryEngagementUpdater(MOPrimaryEngagementUpdater):
 
     def _find_primary(self, mo_engagements):
         # The primary engagement is the engagement with the lowest engagement type.
-        # - The order of engagement types is given by self.eng_types_order.
+        # - The order of engagement types is given by self.settings.eng_types_primary_order.
         #
         # If two engagements have the same engagement_type, the tie is broken by
         # picking the one with the lowest user-key integer.
         def get_engagement_type_id(engagement):
-            if engagement["engagement_type"]["uuid"] in self.eng_types_order:
-                return self.eng_types_order.index(engagement["engagement_type"]["uuid"])
+            if (
+                engagement["engagement_type"]["uuid"]
+                in self.settings.eng_types_primary_order
+            ):
+                return self.settings.eng_types_primary_order.index(
+                    engagement["engagement_type"]["uuid"]
+                )
             return math.inf
 
         def get_engagement_order(engagement):
